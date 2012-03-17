@@ -1,0 +1,17 @@
+{
+  "author": "Takayoshi Tanaka",
+  "name": "articles",
+  "version": "0.3.0",
+  "homepage": "https://github.com/nakaji-dayo/Articles",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:tanaka-takayoshi/bot4node.git"
+  },
+  "engines": {
+    "node": ""
+  },
+  "dependencies": {
+    "mongodb" : ""
+  },
+  "devDependencies": {}
+}
