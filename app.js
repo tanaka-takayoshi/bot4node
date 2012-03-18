@@ -35,9 +35,9 @@ var mongourl = generate_mongo_url(mongo);
 var record_visit = function(req, res){
   /* Connect to the DB and auth */
   require('mongodb').connect(mongourl, function(err, conn){
-    conn.collection('ips', function(err, coll){
+    conn.collection('tweets', function(err, coll){
       /* Simple object to insert: ip address and date */
-      var object_to_insert = { 'ip': req.connection.remoteAddress, 'ts': new Date() };
+      var object_to_insert = { 'tweet': 'Test message from' + req.connection.remoteAddress, 'ts': new Date() };
 
       /* Insert the object then print in response */
       /* Note the _id has been created */
@@ -53,7 +53,7 @@ var record_visit = function(req, res){
 var print_visits = function(req, res){
   /* Connect to the DB and auth */
   require('mongodb').connect(mongourl, function(err, conn){
-      conn.collection('ips', function(err, coll){
+      conn.collection('tweets', function(err, coll){
           coll.find({}, {limit:10, sort:[['_id','desc']]}, function(err, cursor){
               cursor.toArray(function(err, items){
                   res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -67,13 +67,38 @@ var print_visits = function(req, res){
   });
 };
 
+var delete_tweets = function (req, res) {
+  require('mongodb').connect(mongourl, function(err, conn){
+      conn.collection('tweets', function(err, coll){
+          coll.find({}, {limit:10, sort:[['_id','desc']]}, function(err, cursor){
+              cursor.toArray(function(err, items){
+                  res.writeHead(200, {'Content-Type': 'text/plain'});
+                  for(var i=0; i<items.length;i++){
+                      res.write(JSON.stringify(items[i]) + "\n");
+                  }
+                  res.end();
+              });
+          });
+      });
+  });
+}
+
 http.createServer(function (req, res) {
   var params = require('url').parse(req.url);
-  if(params.pathname === '/history') {
+  switch (params.pathname) {
+    case '/list', '/':
       print_visits(req, res);
-  }
-  else{
+      break;
+    case '/tweet':
       record_visit(req, res);
+      break;
+    case '/delete':
+      delete_tweets(req, res);
+      break;
+    default:
+      res.writeHead(404, {'Content-Type': 'text/plain'});
+      res.write('NOT FOUND');
+      res.end();
   }
 }).listen(port, host);
 
